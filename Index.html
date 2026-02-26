@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Jamesy Burn | Dark AI Cyberpunk</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    color: #00ff99;
+    font-family: Consolas, monospace;
+    text-align: center;
+    overflow-x: hidden;
+}
+canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+
+.container { margin-top: 100px; padding: 20px; }
+.glitch { font-size: 50px; animation: glitch 1s infinite; }
+@keyframes glitch {
+  0% { text-shadow: 2px 2px red; }
+  20% { text-shadow: -2px -2px blue; }
+  40% { text-shadow: 2px -2px lime; }
+  60% { text-shadow: -2px 2px cyan; }
+  80% { text-shadow: 2px 2px magenta; }
+  100% { text-shadow: none; }
+}
+#typing { font-size: 20px; color: #00ccff; height: 30px; margin-top: 15px; }
+.btn { display: inline-block; margin-top: 25px; padding: 12px 30px; border: 2px solid #00ff99; color: #00ff99; text-decoration: none; transition: 0.3s; background: transparent; cursor: pointer; }
+.btn:hover { background: #00ff99; color: black; box-shadow: 0 0 20px #00ff99; }
+#crypto { margin-top: 40px; font-size: 18px; color: gold; }
+.secret { display: none; margin-top: 30px; color: red; }
+#contactForm { display: none; margin-top: 30px; }
+input, textarea { background: black; color: #00ff99; border: 1px solid #00ff99; padding: 10px; width: 250px; }
+#adminDashboard { display:none; margin-top:30px; }
+table { margin:auto; border-collapse: collapse; width:80%; }
+th, td { border:1px solid #00ff99; padding:10px; }
+th { color:#00ccff; }
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="container">
+    <div class="glitch">JAMESY BURN</div>
+    <div id="typing"></div>
+
+    <button class="btn" onclick="toggleForm()">SEND MESSAGE</button>
+    <button class="btn" onclick="showSecret()">ENTER SYSTEM</button>
+    <button class="btn" onclick="showAdmin()">ADMIN DASHBOARD</button>
+
+    <div id="crypto">Loading BTC price...</div>
+
+    <!-- Contact Form -->
+    <div id="contactForm">
+        <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+            <br>
+            <input type="text" name="name" placeholder="Your Name" required><br><br>
+            <input type="email" name="email" placeholder="Your Email" required><br><br>
+            <textarea name="message" placeholder="Your Message" required></textarea><br><br>
+            <button type="submit" class="btn">Transmit</button>
+        </form>
+    </div>
+
+    <!-- Secret Hidden Section -->
+    <div class="secret" id="secretBox">
+        🔒 Welcome to the hidden AI layer.
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard">
+        <h2>Admin Dashboard</h2>
+        <table id="msgTable">
+            <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Message</th>
+            </tr>
+        </table>
+    </div>
+
+</div>
+
+<script>
+/* MATRIX EFFECT */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+
+const letters = "01";
+const fontSize = 14;
+const columns = canvas.width / fontSize;
+const drops = [];
+for (let x=0; x<columns; x++) drops[x]=1;
+
+function draw() {
+    ctx.fillStyle = "rgba(0,0,0,0.05)";
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    ctx.fillStyle = "#0F0";
+    ctx.font = fontSize + "px monospace";
+    for (let i=0;i<drops.length;i++){
+        const text = letters[Math.floor(Math.random()*letters.length)];
+        ctx.fillText(text, i*fontSize, drops[i]*fontSize);
+        if(drops[i]*fontSize>canvas.height && Math.random()>0.975) drops[i]=0;
+        drops[i]++;
+    }
+}
+setInterval(draw,33);
+
+/* TYPING EFFECT */
+const text="Crypto Trader | Web Builder | Future Tech Founder";
+let i=0;
+function typing(){ if(i<text.length){ document.getElementById("typing").innerHTML+=text.charAt(i); i++; setTimeout(typing,50); } }
+typing();
+
+/* BTC PRICE */
+fetch("https://api.coindesk.com/v1/bpi/currentprice/BTC.json")
+.then(res=>res.json())
+.then(data=>{ document.getElementById("crypto").innerHTML="BTC Price: $"+data.bpi.USD.rate; })
+.catch(()=>{ document.getElementById("crypto").innerHTML="BTC Price unavailable"; });
+
+/* TOGGLE CONTACT FORM */
+function toggleForm(){
+    const form = document.getElementById("contactForm");
+    form.style.display=form.style.display==='none'?'block':'none';
+}
+
+/* SHOW SECRET */
+function showSecret(){ document.getElementById("secretBox").style.display="block"; }
+
+/* ADMIN DASHBOARD */
+function showAdmin(){
+    let pwd = prompt("Enter Admin Password:");
+    if(pwd !== "YourStrongPassword"){ alert("Access Denied"); return; }
+    document.getElementById("adminDashboard").style.display="block";
+
+    // Fetch messages from Google Sheet JSON
+    fetch("YOUR_GOOGLE_SHEET_JSON_URL")
+    .then(res=>res.json())
+    .then(data=>{
+        const table=document.getElementById("msgTable");
+        data.forEach(msg=>{
+            const row=table.insertRow();
+            row.insertCell(0).innerText=msg.date;
+            row.insertCell(1).innerText=msg.name;
+            row.insertCell(2).innerText=msg.email;
+            row.insertCell(3).innerText=msg.message;
+        });
+    })
+    .catch(err=>console.log(err));
+}
+</script>
+
+</body>
+</html>
